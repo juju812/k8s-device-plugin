@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: nvidia-device-plugin-daemonset
+  name: danlu-gpu-pci-device-plugin-daemonset
   namespace: kube-system
 spec:
   updateStrategy:
@@ -13,7 +13,7 @@ spec:
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ""
       labels:
-        name: nvidia-device-plugin-ds
+        name: danlu-gpu-pci-device-plugin-ds
     spec:
       tolerations:
       # This toleration is deprecated. Kept here for backward compatibility
@@ -30,7 +30,7 @@ spec:
       priorityClassName: "system-node-critical"
       containers:
       - image: nvidia/k8s-device-plugin:1.0.0-beta
-        name: nvidia-device-plugin-ctr
+        name: danlu-gpu-pci-device-plugin-ctr
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:

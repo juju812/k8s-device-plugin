@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	resourceName           = "nvidia.com/gpu"
-	serverSock             = pluginapi.DevicePluginPath + "nvidia.sock"
+	resourceName           = "danlu.com/gpu-pci"
+	serverSock             = pluginapi.DevicePluginPath + "danlu.sock"
 	envDisableHealthChecks = "DP_DISABLE_HEALTHCHECKS"
 	allHealthChecks        = "xids"
 )
@@ -89,7 +89,7 @@ func (m *NvidiaDevicePlugin) Start() error {
 	}
 	conn.Close()
 
-	go m.healthcheck()
+	//go m.healthcheck()
 
 	return nil
 }
@@ -156,7 +156,7 @@ func (m *NvidiaDevicePlugin) Allocate(ctx context.Context, reqs *pluginapi.Alloc
 	for _, req := range reqs.ContainerRequests {
 		response := pluginapi.ContainerAllocateResponse{
 			Envs: map[string]string{
-				"NVIDIA_VISIBLE_DEVICES": strings.Join(req.DevicesIDs, ","),
+				"PCIDEVICE_DANLU_COM_GPU": strings.Join(req.DevicesIDs, ","),
 			},
 		}
 
@@ -184,30 +184,30 @@ func (m *NvidiaDevicePlugin) cleanup() error {
 	return nil
 }
 
-func (m *NvidiaDevicePlugin) healthcheck() {
-	disableHealthChecks := strings.ToLower(os.Getenv(envDisableHealthChecks))
-	if disableHealthChecks == "all" {
-		disableHealthChecks = allHealthChecks
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-
-	var xids chan *pluginapi.Device
-	if !strings.Contains(disableHealthChecks, "xids") {
-		xids = make(chan *pluginapi.Device)
-		go watchXIDs(ctx, m.devs, xids)
-	}
-
-	for {
-		select {
-		case <-m.stop:
-			cancel()
-			return
-		case dev := <-xids:
-			m.unhealthy(dev)
-		}
-	}
-}
+//func (m *NvidiaDevicePlugin) healthcheck() {
+//	disableHealthChecks := strings.ToLower(os.Getenv(envDisableHealthChecks))
+//	if disableHealthChecks == "all" {
+//		disableHealthChecks = allHealthChecks
+//	}
+//
+//	ctx, cancel := context.WithCancel(context.Background())
+//
+//	var xids chan *pluginapi.Device
+//	if !strings.Contains(disableHealthChecks, "xids") {
+//		xids = make(chan *pluginapi.Device)
+//		go watchXIDs(ctx, m.devs, xids)
+//	}
+//
+//	for {
+//		select {
+//		case <-m.stop:
+//			cancel()
+//			return
+//		case dev := <-xids:
+//			m.unhealthy(dev)
+//		}
+//	}
+//}
 
 // Serve starts the gRPC server and register the device plugin to Kubelet
 func (m *NvidiaDevicePlugin) Serve() error {
