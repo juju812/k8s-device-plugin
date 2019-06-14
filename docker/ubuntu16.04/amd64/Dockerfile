@@ -12,6 +12,6 @@ FROM debian:stretch-slim
 #ENV NVIDIA_VISIBLE_DEVICES=all
 #ENV NVIDIA_DRIVER_CAPABILITIES=utility
 
-COPY --from=build ./danlu-gpu-pci-device-plugin /usr/bin/danlu-gpu-pci-device-plugin
+COPY ./danlu-gpu-pci-device-plugin /usr/bin/danlu-gpu-pci-device-plugin
 
 CMD ["danlu-gpu-pci-device-plugin"]
