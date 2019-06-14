@@ -4,6 +4,7 @@ package main
 
 import (
 	"log"
+	"strings"
 
 	"github.com/jaypipes/ghw"
 	pluginapi "k8s.io/kubernetes/pkg/kubelet/apis/deviceplugin/v1beta1"
@@ -16,15 +17,19 @@ func check(err error) {
 }
 
 func getDevices() []*pluginapi.Device {
-	gpu, err := ghw.GPU()
+	pci, err := ghw.PCI()
 	check(err)
 
 	var devs []*pluginapi.Device
-	for _, card := range gpu.GraphicsCards {
-		devs = append(devs, &pluginapi.Device{
-			ID:     card.Address,
-			Health: pluginapi.Healthy,
-		})
+	for _, pciInfo := range pci.ListDevices() {
+		// Only support Nvidia and AMD GPU
+		if (pciInfo.Vendor.ID == "10de" || pciInfo.Vendor.ID == "1002") && strings.HasSuffix(pciInfo.Address, ".0") {
+			log.Println("Found GPU:", pciInfo)
+			devs = append(devs, &pluginapi.Device{
+				ID:     pciInfo.Address,
+				Health: pluginapi.Healthy,
+			})
+		}
 	}
 
 	return devs
